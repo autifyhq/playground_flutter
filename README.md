@@ -2,7 +2,9 @@
 
 A new Flutter project.
 
+### Internationalizing
 
-1. Create app 
-    https://flutter.dev/docs/get-started/test-drive?tab=vscode#create-app
-1. 
+- References
+    - https://flutter.dev/docs/development/accessibility-and-localization/internationalization#adding-your-own-localized-messages
+    - https://github.com/flutter/flutter/issues/68003
+    - https://github.com/flutter/website/tree/master/examples/internationalization/gen_l10n_example
