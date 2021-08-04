@@ -63,8 +63,17 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
-        child: Text(AppLocalizations.of(context)!.helloWorld)
-      ),
+        child: TextButton(
+              style: TextButton.styleFrom(
+                primary: Colors.white,
+                backgroundColor: Colors.blue,
+              ),
+              onPressed: () {
+                print('Pressed');
+              },
+              child: Text(AppLocalizations.of(context)!.allowNotification),
+        )
+      )
     );
   }
 }
