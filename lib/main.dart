@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:devicelocale/devicelocale.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:notification_permissions/notification_permissions.dart';
@@ -14,22 +17,22 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  late Future<String> permissionStatusFuture;
+  Future<String>? permissionStatusFuture;
+  String? _locale;
 
   var permGranted = "granted";
   var permDenied = "denied";
   var permUnknown = "unknown";
   var permProvisional = "provisional";
+  var somethingWrong = "somethingWrong";
 
   @override
   void initState() {
     super.initState();
+    initPlatformState();
     // set up the notification permissions class
     // set up the future to fetch the notification data
     permissionStatusFuture = getCheckNotificationPermStatus();
-    // With this, we will be able to check if the permission is granted or not
-    // when returning to the application
-    // WidgetsBinding.instance.addObserver(this);
   }
 
   /// When the application has a resumed status, check for the permission
@@ -41,6 +44,25 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         permissionStatusFuture = getCheckNotificationPermStatus();
       });
     }
+  }
+
+  Future<void> initPlatformState() async {
+    String? currentLocale;
+
+    try {
+      currentLocale = await Devicelocale.currentLocale;
+      print((currentLocale != null)
+          ? currentLocale
+          : "Unable to get currentLocale");
+    } on PlatformException {
+      print("Error obtaining current locale");
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _locale = currentLocale;
+    });
   }
 
   /// Checks the notification permission status
@@ -57,7 +79,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         case PermissionStatus.provisional:
           return permProvisional;
         default:
-          return "";
+          return somethingWrong;
       }
     });
   }
@@ -65,9 +87,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        Locale('en', ''), // English, no country code
+        Locale('ja', ''), // Japanese, no country code
+      ],
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Notification Permissions'),
+          title: const Text('Playground Flutter'),
         ),
         body: Center(
             child: Container(
@@ -86,21 +118,28 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                     softWrap: true,
                     textAlign: TextAlign.center,
                   );
-                  // The permission is granted, then just show the text
-                  if (snapshot.data == permGranted) {
-                    return textWidget;
-                  }
 
                   // else, we'll show a button to ask for the permissions
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
+                      Text("using devicelocale: ^0.4.2:"),
+                      Text('$_locale'),
+                      Text("using intl: ^0.17.0"),
+                      Text(Intl.getCurrentLocale()),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
                       textWidget,
                       SizedBox(
                         height: 20,
                       ),
                       TextButton(
-                        child: Text("Ask for notification status".toUpperCase()),
+                        child: Text(
+                            AppLocalizations.of(context)!.allowNotification),
                         onPressed: () {
                           // show the dialog/open settings screen
                           NotificationPermissions
