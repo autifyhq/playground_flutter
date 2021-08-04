@@ -10,6 +10,13 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>ja</string>
+    </array>
+    <key>CFBundleAllowMixedLocalizations</key>
+    <true/>
 	<key>CFBundleName</key>
 	<string>playground_flutter</string>
 	<key>CFBundlePackageType</key>
