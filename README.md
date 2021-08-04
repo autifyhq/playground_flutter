@@ -23,7 +23,7 @@ $ xcrun lipo -info /path/to/playground_flutter/build/ios/Debug-iphonesimulator/R
 Non-fat file: /path/to/playground_flutter/build/ios/Debug-iphonesimulator/Runner.app/Runner is architecture: x86_64
 ```
 
-### Internaltion
+### Localizaing
 
 - https://flutter.dev/docs/development/accessibility-and-localization/internationalization#adding-your-own-localized-messages
 - https://github.com/flutter/flutter/issues/68003
