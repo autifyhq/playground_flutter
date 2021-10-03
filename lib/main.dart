@@ -1,17 +1,92 @@
+import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:devicelocale/devicelocale.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:notification_permissions/notification_permissions.dart';
 
 void main() {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  Future<String>? permissionStatusFuture;
+  String? _locale;
+
+  var permGranted = "granted";
+  var permDenied = "denied";
+  var permUnknown = "unknown";
+  var permProvisional = "provisional";
+  var somethingWrong = "somethingWrong";
+
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+    // set up the notification permissions class
+    // set up the future to fetch the notification data
+    permissionStatusFuture = getCheckNotificationPermStatus();
+  }
+
+  /// When the application has a resumed status, check for the permission
+  /// status
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      setState(() {
+        permissionStatusFuture = getCheckNotificationPermStatus();
+      });
+    }
+  }
+
+  Future<void> initPlatformState() async {
+    String? currentLocale;
+
+    try {
+      currentLocale = await Devicelocale.currentLocale;
+      print((currentLocale != null)
+          ? currentLocale
+          : "Unable to get currentLocale");
+    } on PlatformException {
+      print("Error obtaining current locale");
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _locale = currentLocale;
+    });
+  }
+
+  /// Checks the notification permission status
+  Future<String> getCheckNotificationPermStatus() {
+    return NotificationPermissions.getNotificationPermissionStatus()
+        .then((status) {
+      switch (status) {
+        case PermissionStatus.denied:
+          return permDenied;
+        case PermissionStatus.granted:
+          return permGranted;
+        case PermissionStatus.unknown:
+          return permUnknown;
+        case PermissionStatus.provisional:
+          return permProvisional;
+        default:
+          return somethingWrong;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Playground Flutter',
       localizationsDelegates: [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -22,48 +97,73 @@ class MyApp extends StatelessWidget {
         Locale('en', ''), // English, no country code
         Locale('ja', ''), // Japanese, no country code
       ],
-      home: MyHomePage(title: 'Playground Flutter'),
-    );
-  }
-}
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Playground Flutter'),
+        ),
+        body: Center(
+            child: Container(
+          margin: EdgeInsets.all(20),
+          child: FutureBuilder(
+              future: permissionStatusFuture,
+              builder: (context, snapshot) {
+                // if we are waiting for data, show a progress indicator
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator();
+                }
+                if (snapshot.hasData) {
+                  var textWidget = Text(
+                    "The permission status is ${snapshot.data}",
+                    style: TextStyle(fontSize: 20),
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                  );
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Text(AppLocalizations.of(context)!.helloWorld)
+                  // else, we'll show a button to ask for the permissions
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text("using devicelocale: ^0.4.2:"),
+                      Text('$_locale'),
+                      Text("using intl: ^0.17.0"),
+                      Text(Intl.getCurrentLocale()),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      textWidget,
+                      SizedBox(
+                        height: 20,
+                      ),
+                      TextButton(
+                        child: Text(
+                            AppLocalizations.of(context)!.allowNotification),
+                        onPressed: () {
+                          // show the dialog/open settings screen
+                          NotificationPermissions
+                                  .requestNotificationPermissions(
+                                      iosSettings:
+                                          const NotificationSettingsIos(
+                                              sound: true,
+                                              badge: true,
+                                              alert: true))
+                              .then((_) {
+                            // when finished, check the permission status
+                            setState(() {
+                              permissionStatusFuture =
+                                  getCheckNotificationPermStatus();
+                            });
+                          });
+                        },
+                      )
+                    ],
+                  );
+                }
+                return Text("No permission status yet");
+              }),
+        )),
       ),
     );
   }
