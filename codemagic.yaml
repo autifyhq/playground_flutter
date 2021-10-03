@@ -26,21 +26,7 @@ workflows:
       - name: "Build simulator build for Autify"
         script: |
           flutter build ios --debug --no-codesign
-          export APP_PATH=${HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app}
-
-      - name: "Upload a new build to Autify"
-        script: |
-          # Required secret environment variables:
-          #   - AUTIFY_PROJECT_ID
-          #   - AUTIFY_PERSONAL_ACCESS_TOKEN
-
-          # Debug
-          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
-          echo -e "* APP_PATH: ${APP_PATH}"
-
-
 
     artifacts:
-      - HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
