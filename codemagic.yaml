@@ -44,7 +44,7 @@ workflows:
       - name: Upload a new build
         script: |
           # Create a zip file
-          zip -r ./upload.zip /Users/builder/clone/build/ios/iphoneos/Runner.app
+          zip -r ./upload.zip /Users/builder/clone/build/ios/Debug-iphoneos/Runner.app
 
           ls
 
@@ -63,12 +63,12 @@ workflows:
 
           BODY=$(echo "$RESPONSE" | sed '$d')
 
-          if [[ "$HTTP_STATUS" != "201" ]]; then
-            error "$BODY"
+          if [[ "${HTTP_STATUS}" != "201" ]]; then
+            echo ${BODY}
             exit 1
           fi
 
     artifacts:
-      - build/ios/iphoneos/*.app
+      - build/ios/Debug-iphoneos/*.app
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
