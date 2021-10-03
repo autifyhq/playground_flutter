@@ -49,12 +49,12 @@ workflows:
           # Upload a new build to Autify
           RESPONSE=$(\
             curl -X POST \
-                 -H "accept: application/json" \
-                 -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
-                 -H "Content-Type: multipart/form-data" \
-                 -F "file=@./upload.zip;type=application/zip" \
-                 -w '\n%{http_code}' -s \
-                 "https://mobile-app.autify.com/api/v1/projects/${AUTIFY_PROJECT_ID}/builds"
+              "https://mobile-app.autify.com/api/v1/projects/${AUTIFY_PROJECT_ID}/builds" \
+              -H "accept: application/json" \
+              -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
+              -H "Content-Type: multipart/form-data" \
+              -F "file=@./upload.zip;type=application/zip" \
+              -w '\n%{http_code}' -s
           )
 
           HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
