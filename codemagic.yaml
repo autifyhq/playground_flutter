@@ -37,18 +37,14 @@ workflows:
       - name: Build iOS Simulator
         script: |
           flutter build ios --debug --no-codesign
-          export APP_PATH=${build/ios/iphoneos/*.app}
 
       # Required Application environment variables:
       #   AUTIFY_TOKEN: Personal Access Token
       #   AUTIFY_PROJECT_ID: Project ID
       - name: Upload a new build
         script: |
-          echo -e "* AUTIFY_TOKEN: ${AUTIFY_TOKEN}"
-          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
-
           # Create a zip file
-          zip -r ./upload.zip $APP_PATH
+          zip -r ./upload.zip /Users/builder/clone/build/ios/iphoneos/Runner.app
 
           # Upload a new build to Autify
           RESPONSE=$(\
