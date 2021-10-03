@@ -46,6 +46,8 @@ workflows:
           # Create a zip file
           zip -r ./upload.zip /Users/builder/clone/build/ios/iphoneos/Runner.app
 
+          ls
+
           # Upload a new build to Autify
           RESPONSE=$(\
             curl -X POST \
