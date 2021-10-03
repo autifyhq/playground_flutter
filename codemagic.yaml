@@ -1,0 +1,46 @@
+# Check out https://docs.codemagic.io/yaml/yaml-getting-started/ for more information.
+# Please review and update values in curly braces
+
+workflows:
+  main-workflow:               # workflow ID
+    name: Main Workflow        # workflow name displayed in Codemagic UI
+    max_build_duration: 90     # build duration in minutes (min 1, max 120)
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+      tag_patterns:
+        - pattern: '*'
+          include: true
+
+    scripts:
+      - name: "Build simulator build for Autify"
+        script: |
+          flutter build ios --debug --no-codesign
+          export APP_PATH=${HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app}
+
+      - name: "Upload a new build to Autify"
+        script: |
+          # Required secret environment variables:
+          #   - AUTIFY_PROJECT_ID
+          #   - AUTIFY_PERSONAL_ACCESS_TOKEN
+
+          # Debug
+          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
+          echo -e "* APP_PATH: ${APP_PATH}"
+
+
+
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
