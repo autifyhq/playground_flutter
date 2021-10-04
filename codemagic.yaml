@@ -55,7 +55,7 @@ workflows:
           pwd
 
           # Create a zip file
-          zip -r ./upload.zip /Users/builder/clone/build/ios/Debug-iphoneos/Runner.app
+          cd /Users/builder/clone/build/ios/Debug-iphoneos && zip -r ./build.zip ./Runner.app
 
           # Upload a new build to Autify
           RESPONSE=$(\
@@ -64,7 +64,7 @@ workflows:
               -H "accept: application/json" \
               -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
               -H "Content-Type: multipart/form-data" \
-              -F "file=@/Users/builder/clone/upload.zip;type=application/zip \
+              -F "file=@/Users/builder/clone/build/ios/Debug-iphoneos/build.zip;type=application/zip \
               -w '\n%{http_code}' -s
           )
 
@@ -89,6 +89,12 @@ workflows:
       #
       - name: Run a Test Plan
         script: |
+          # Debug
+          echo -e 'pwd'
+          pwd
+
+          echo -e "AUTIFY_UPLOAD_STEP_RESULT_JSON"
+          echo -e "${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
           
           build_id=$(echo $AUTIFY_UPLOAD_STEP_RESULT_JSON | jq -r .id)
           echo -e "\033[00;32m *  $build_id  \033[0m"
