@@ -51,7 +51,7 @@ workflows:
       - name: Upload a new build
         script: |
           # Debug
-          echo -e "*AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
+          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
 
 
           # Create a zip file
@@ -72,7 +72,9 @@ workflows:
 
           BODY=$(echo "$RESPONSE" | sed '$d')
 
-          echo "export AUTIFY_UPLOAD_STEP_RESULT_JSON=${BODY}" >> ~/.zshenv
+          # Set env
+          echo "export AUTIFY_UPLOAD_STEP_RESULT_JSON=${BODY}" >> ~/.bash_profile
+          source ~/.bash_profile
 
           if [[ "${HTTP_STATUS}" != "201" ]]; then
             echo ${BODY}
@@ -90,9 +92,9 @@ workflows:
       - name: Run a Test Plan
         script: |
           # Debug
-          echo -e "*AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
-          echo -e "*AUTIFY_TEST_PLAN_ID: ${AUTIFY_TEST_PLAN_ID}"
-          echo -e "*AUTIFY_UPLOAD_STEP_RESULT_JSON: ${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
+          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
+          echo -e "* AUTIFY_TEST_PLAN_ID: ${AUTIFY_TEST_PLAN_ID}"
+          echo -e "* AUTIFY_UPLOAD_STEP_RESULT_JSON: ${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
 
           generate_post_data() {
             cat << EOF
