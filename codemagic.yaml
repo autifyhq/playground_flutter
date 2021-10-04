@@ -50,9 +50,7 @@ workflows:
       # 
       - name: Upload a new build
         script: |
-          # Debug
           echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
-
 
           # Create a zip file
           cd /Users/builder/clone/build/ios/Debug-iphoneos && zip -r ./build.zip ./Runner.app
@@ -71,10 +69,11 @@ workflows:
           HTTP_STATUS=$(echo "$RESPONSE" | tail -n 1)
 
           BODY=$(echo "$RESPONSE" | sed '$d')
+          BUILD_ID=$(echo "$RESPONSE" | sed '$d' | jq -r .id)
 
           # Set env
-          echo "export AUTIFY_UPLOAD_STEP_RESULT_JSON=${BODY}" >> ~/.bash_profile
-          source ~/.bash_profile
+          echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
+          echo "export AUTIFY_NEW_BUILD_ID=${BUILD_ID}" >> ~/.bash_profile
 
           if [[ "${HTTP_STATUS}" != "201" ]]; then
             echo ${BODY}
@@ -91,23 +90,20 @@ workflows:
       #
       - name: Run a Test Plan
         script: |
-          # Debug
           source ~/.bash_profile
-          cat ~/.bash_profile 
+
+          # Debug
           echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
           echo -e "* AUTIFY_TEST_PLAN_ID: ${AUTIFY_TEST_PLAN_ID}"
-          echo -e "* AUTIFY_UPLOAD_STEP_RESULT_JSON: ${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
+          echo -e "* AUTIFY_NEW_BUILD_ID: ${AUTIFY_NEW_BUILD_ID}"
 
           generate_post_data() {
             cat << EOF
           {
-            "build_id": "$build_id"
+            "build_id": "$AUTIFY_NEW_BUILD_ID"
           }
           EOF
           }
-
-          build_id=$(echo $AUTIFY_UPLOAD_STEP_RESULT_JSON | jq -r .id)
-          echo -e "\033[00;32m *  $build_id  \033[0m"
 
           RESPONSE=$(\
             curl -X POST \
