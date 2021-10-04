@@ -85,6 +85,14 @@ workflows:
       #
       - name: Run a Test Plan
         script: |
+          generate_post_data() {
+            cat << EOF
+          {
+            "build_id": "$build_id"
+          }
+          EOF
+          }
+
           build_id=$(echo $AUTIFY_UPLOAD_STEP_RESULT_JSON | jq -r .id)
           echo -e "\033[00;32m *  $build_id  \033[0m"
 
