@@ -50,10 +50,12 @@ workflows:
       # 
       - name: Upload a new build
         script: |
+          # Debug
+          echo -e 'pwd'
+          pwd
+
           # Create a zip file
           zip -r ./upload.zip /Users/builder/clone/build/ios/Debug-iphoneos/Runner.app
-
-          echo $AUTIFY_PROJECT_ID
 
           # Upload a new build to Autify
           RESPONSE=$(\
@@ -62,7 +64,7 @@ workflows:
               -H "accept: application/json" \
               -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
               -H "Content-Type: multipart/form-data" \
-              -F "file=@/Users/builder/clone/upload.zip; type=application/zip" \
+              -F "file=@/Users/builder/clone/upload.zip;type=application/zip \
               -w '\n%{http_code}' -s
           )
 
