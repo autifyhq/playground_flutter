@@ -72,6 +72,8 @@ workflows:
 
           BODY=$(echo "$RESPONSE" | sed '$d')
 
+          envman add --key "AUTIFY_UPLOAD_STEP_RESULT_JSON" --value "$BODY"
+
           if [[ "${HTTP_STATUS}" != "201" ]]; then
             echo ${BODY}
             exit 1
