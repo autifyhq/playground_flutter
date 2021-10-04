@@ -50,10 +50,6 @@ workflows:
       # 
       - name: Upload a new build
         script: |
-          # Debug
-          echo -e 'pwd'
-          pwd
-
           # Create a zip file
           cd /Users/builder/clone/build/ios/Debug-iphoneos && zip -r ./build.zip ./Runner.app
 
@@ -64,7 +60,7 @@ workflows:
               -H "accept: application/json" \
               -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
               -H "Content-Type: multipart/form-data" \
-              -F "file=@/Users/builder/clone/build/ios/Debug-iphoneos/build.zip;type=application/zip \
+              -F "file=@/Users/builder/clone/build/ios/Debug-iphoneos/build.zip;type=application/zip" \
               -w '\n%{http_code}' -s
           )
 
@@ -72,7 +68,7 @@ workflows:
 
           BODY=$(echo "$RESPONSE" | sed '$d')
 
-          envman add --key "AUTIFY_UPLOAD_STEP_RESULT_JSON" --value "$BODY"
+          echo "export AUTIFY_UPLOAD_STEP_RESULT_JSON=${BODY}" >> ~/.zshenv
 
           if [[ "${HTTP_STATUS}" != "201" ]]; then
             echo ${BODY}
@@ -89,13 +85,6 @@ workflows:
       #
       - name: Run a Test Plan
         script: |
-          # Debug
-          echo -e 'pwd'
-          pwd
-
-          echo -e "AUTIFY_UPLOAD_STEP_RESULT_JSON"
-          echo -e "${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
-          
           build_id=$(echo $AUTIFY_UPLOAD_STEP_RESULT_JSON | jq -r .id)
           echo -e "\033[00;32m *  $build_id  \033[0m"
 
