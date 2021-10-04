@@ -92,6 +92,8 @@ workflows:
       - name: Run a Test Plan
         script: |
           # Debug
+          source ~/.bash_profile
+          cat ~/.bash_profile 
           echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
           echo -e "* AUTIFY_TEST_PLAN_ID: ${AUTIFY_TEST_PLAN_ID}"
           echo -e "* AUTIFY_UPLOAD_STEP_RESULT_JSON: ${AUTIFY_UPLOAD_STEP_RESULT_JSON}"
