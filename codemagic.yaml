@@ -36,7 +36,7 @@ workflows:
 
       - name: Build iOS Simulator
         script: |
-          flutter build ios --debug --no-codesign
+          flutter clean && flutter build ios --simulator --no-codesign
 
       # 
       # Upload a new build
@@ -53,7 +53,7 @@ workflows:
           echo -e "* AUTIFY_PROJECT_ID: ${AUTIFY_PROJECT_ID}"
 
           # Create a zip file
-          cd /Users/builder/clone/build/ios/Debug-iphoneos && zip -r ./build.zip ./Runner.app
+          cd /Users/builder/clone/build/ios/Debug-iphonesimulator && zip -r ./build.zip ./Runner.app
 
           # Upload a new build to Autify
           RESPONSE=$(\
@@ -62,7 +62,7 @@ workflows:
               -H "accept: application/json" \
               -H "Authorization: Bearer ${AUTIFY_TOKEN}" \
               -H "Content-Type: multipart/form-data" \
-              -F "file=@/Users/builder/clone/build/ios/Debug-iphoneos/build.zip;type=application/zip" \
+              -F "file=@/Users/builder/clone/build/ios/Debug-iphonesimulator/build.zip;type=application/zip" \
               -w '\n%{http_code}' -s
           )
 
@@ -117,6 +117,6 @@ workflows:
           echo -e "\033[00;32m * https://mobile-app.autify.com/projects/${AUTIFY_PROJECT_ID}/results/${test_plan_result_id} \033[0m"
 
     artifacts:
-      - build/ios/Debug-iphoneos/*.app
+      - build/ios/Debug-iphonesimulator/*.app
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
